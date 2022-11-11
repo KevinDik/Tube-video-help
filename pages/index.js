@@ -3,9 +3,28 @@ import config from "../config.json";
 import styled from "styled-components";
 import Menu from "../src/components/Menu";
 import { StyledTimeline } from "../src/components/Timeline";
+import VideoService from "../src/services/VideoService";
+
+
 
 function HomePage() {
+    const service = VideoService();
     const [valorDoFiltro, setValorDoFiltro] = React.useState("");
+    const [playlist, setPlaylist] = React.useState({});
+
+    React.useEffect(() => {
+        service.getAllVideos()
+            .then((dados) => {
+                const novasPlaylists = { ...playlist };
+                dados.data.forEach((video) => {
+                    if (!novasPlaylists[video.playlist]) {
+                        novasPlaylists[video.playlist] = [];
+                    }
+                    novasPlaylists[video.playlist].push(video);
+                })
+                setPlaylist(novasPlaylists);
+            });
+    }, [])
 
     return (
         <>

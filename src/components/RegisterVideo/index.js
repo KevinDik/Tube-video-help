@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js'
 import React from "react";
 import { StyledRegisterVideo } from "./styles";
 
@@ -23,11 +24,19 @@ function useForm(propsDoForm) {
     };
 }
 
+const PROJECT_URL = "https://oqofpevgcpzqcfrqnotz.supabase.co";
+const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xb2ZwZXZnY3B6cWNmcnFub3R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjgxNjgwNzYsImV4cCI6MTk4Mzc0NDA3Nn0.lXRpsCPh5W9s8eYI__84M1k0eMsNvImnNb9Ozu-dov8";
+const supabase = createClient(PROJECT_URL, API_KEY)
+
+function getThumbnail(url) {
+    return `https://img.youtube.com/vi${url.split("v=")[1]}/hqdefault.jpg`
+}
+
 export default function RegisterVideo() {
     const formCadastro = useForm({
-        initialValues: { titulo: "Frost punk", url: "https://youtube.." }
+        initialValues: { titulo: "Frost punk", url: "https://www.youtube.com/watch?v=QsqatJxAUtk" }
     });
-    const [formVisivel, setFormVisivel] = React.useState(true);
+    const [formVisivel, setFormVisivel] = React.useState(false);
     /*
     ## O que precisamos para o form funcionar?
     - pegar os dados, que precisam vir do state
@@ -49,6 +58,20 @@ export default function RegisterVideo() {
                     <form onSubmit={(evento) => {
                         evento.preventDefault();
                         console.log(formCadastro.values);
+
+                        //contrato entre o front e back
+                        supabase.from("video").insert({
+                            title: formCadastro.values.titulo,
+                            url: formCadastro.values,
+                            thumb: getThumbnail(formCadastro.values.url),
+                            playlist: "jogos"
+                        })
+                        .then((resp) => {
+                            console.log(resp)
+                        })
+                        .catch(() => {
+                            console.log(erro)
+                        })
 
                         setFormVisivel(false);
                         formCadastro.clearForm();
